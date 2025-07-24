@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Menu, X, Search } from 'lucide-react';
 
@@ -67,7 +67,7 @@ const Navigation: React.FC = () => {
           <Button variant="outline" size="default">
             Log in
           </Button>
-          <Button variant="primary" size="default">
+          <Button variant="default" size="default">
             Sign up free
           </Button>
         </div>
@@ -121,10 +121,10 @@ const Navigation: React.FC = () => {
             Pricing
           </a>
           <div className="pt-6 flex flex-col gap-3">
-            <Button variant="outline" size="wide">
+            <Button variant="outline" size="lg" className="w-full">
               Log in
             </Button>
-            <Button variant="primary" size="wide">
+            <Button variant="default" size="lg" className="w-full">
               Sign up free
             </Button>
           </div>

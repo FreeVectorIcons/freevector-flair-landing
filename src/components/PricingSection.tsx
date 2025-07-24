@@ -1,6 +1,6 @@
 
 import React, { useRef, useEffect, useState } from 'react';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Check, Gift, ArrowRight } from 'lucide-react';
 
@@ -100,9 +100,10 @@ const Plan: React.FC<PlanProps> = ({
       </ul>
       
       <Button 
-        variant={isPopular ? "outline" : "primary"} 
-        size="wide"
+        variant={isPopular ? "outline" : "default"} 
+        size="lg"
         className={cn(
+          "w-full",
           isPopular 
             ? "bg-transparent border-2 border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10"
             : ""

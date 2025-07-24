@@ -1,54 +1,32 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import AnimatedIcon from './AnimatedIcon';
 import { cn } from '@/lib/utils';
 import { Search, Filter, ArrowRight } from 'lucide-react';
+import { iconData, iconCategories, filterIcons, type IconCategory, type IconData } from '@/data/iconData';
 
-// Mock categories
-const categories = [
-  'All',
-  'User Interface',
-  'Business',
-  'Social Media',
-  'Weather',
-  'E-commerce',
-  'Travel',
-  'Food',
-  'Technology',
-];
-
-// Mock icons - in real app, these would be loaded from an API or database
-const generateMockIcons = () => {
-  const icons = [];
-  // Use Lucide icons for demo
-  const iconNames = [
-    'PenTool', 'Image', 'Calendar', 'Clock', 'User', 
-    'Settings', 'Mail', 'Phone', 'Heart', 'Star',
-    'Home', 'Search', 'Bell', 'Camera', 'Bookmark',
-    'File', 'Folder', 'Map', 'Globe', 'Smile',
-    'Moon', 'Sun', 'Cloud', 'Umbrella', 'Video',
-    'Music', 'ShoppingCart', 'CreditCard', 'Truck', 'Package',
-    'Cpu', 'Database', 'Wifi', 'Bluetooth', 'Battery'
-  ];
-  
-  for (let i = 0; i < 24; i++) {
-    const name = iconNames[i % iconNames.length];
-    icons.push({
-      id: i,
-      name,
-      color: i % 5 === 0 ? 'bg-blue-500' : 
-             i % 5 === 1 ? 'bg-purple-500' : 
-             i % 5 === 2 ? 'bg-pink-500' : 
-             i % 5 === 3 ? 'bg-green-500' : 'bg-amber-500',
-    });
-  }
-  return icons;
+// Component to render individual Lucide icons
+const IconComponent: React.FC<{ iconData: IconData; onClick?: () => void }> = ({ iconData, onClick }) => {
+  const IconElement = iconData.component;
+  return (
+    <div 
+      className="flex flex-col items-center justify-center gap-2 cursor-pointer group"
+      onClick={onClick}
+    >
+      <div className="relative w-16 h-16 rounded-2xl bg-white shadow-soft hover:shadow-medium flex items-center justify-center transition-all duration-300 group-hover:scale-110">
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <IconElement className="w-8 h-8 text-foreground group-hover:text-primary transition-colors duration-300" />
+      </div>
+      <span className="text-xs text-center font-medium text-muted-foreground group-hover:text-foreground transition-colors duration-300">
+        {iconData.displayName}
+      </span>
+    </div>
+  );
 };
 
 const IconGallery: React.FC = () => {
-  const [activeCategory, setActiveCategory] = useState('All');
-  const [icons, setIcons] = useState(generateMockIcons());
+  const [activeCategory, setActiveCategory] = useState<IconCategory>('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   
@@ -82,12 +60,15 @@ const IconGallery: React.FC = () => {
   }, []);
   
   // Filter icons based on search query and category
-  const filteredIcons = icons.filter(icon => {
-    const matchesSearch = searchQuery === '' || 
-                          icon.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = activeCategory === 'All' || Math.random() > 0.5; // Mock category filtering
-    return matchesSearch && matchesCategory;
-  });
+  const filteredIcons = filterIcons(activeCategory, searchQuery);
+  
+  // Show only first 24 icons for better performance
+  const displayedIcons = filteredIcons.slice(0, 24);
+  
+  const handleIconClick = (icon: IconData) => {
+    // Here you could implement download functionality or copy to clipboard
+    console.log('Icon clicked:', icon.name);
+  };
   
   return (
     <section ref={sectionRef} id="icons" className="section-spacing">
@@ -121,10 +102,10 @@ const IconGallery: React.FC = () => {
         </div>
         
         <div className="flex flex-wrap justify-center gap-3 mb-10">
-          {categories.map(category => (
+          {iconCategories.map(category => (
             <Button
               key={category}
-              variant={activeCategory === category ? 'primary' : 'subtle'}
+              variant={activeCategory === category ? 'default' : 'outline'}
               size="sm"
               onClick={() => setActiveCategory(category)}
               className="rounded-full"
@@ -135,16 +116,29 @@ const IconGallery: React.FC = () => {
         </div>
         
         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-6 mb-12">
-          {filteredIcons.map((icon, index) => (
-            <AnimatedIcon
+          {displayedIcons.map((icon, index) => (
+            <div
               key={icon.id}
-              icon={`https://via.placeholder.com/24/CCCCCC/000000?text=${icon.name.substring(0, 1)}`}
-              name={icon.name}
-              color={icon.color}
-              className="transform transition-all duration-300 hover-lift"
-            />
+              className={cn(
+                "transform transition-all duration-300 hover-lift stagger-item",
+                index < 8 ? "animate-stagger" : ""
+              )}
+              style={{ animationDelay: `${index * 0.05}s` }}
+            >
+              <IconComponent iconData={icon} onClick={() => handleIconClick(icon)} />
+            </div>
           ))}
         </div>
+        
+        {filteredIcons.length === 0 && (
+          <div className="text-center py-12">
+            <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+              <Search className="w-8 h-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2">No icons found</h3>
+            <p className="text-muted-foreground">Try adjusting your search or category filter</p>
+          </div>
+        )}
         
         <div className="text-center">
           <Button variant="outline" size="lg" className="group">
